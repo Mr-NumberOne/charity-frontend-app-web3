@@ -27,7 +27,6 @@ import { Heart, Menu, Github } from 'lucide-react';
 export default function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
   
-  // Handle scroll effect for header
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 10);
@@ -36,6 +35,13 @@ export default function Header() {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  const handleConnectWallet = () => {
+    // TODO: Implement your actual wallet connection logic here.
+    // This could involve using a library like wagmi, ethers.js, etc.
+    console.log("Connect Wallet button clicked. Implement connection logic.");
+    alert("Connect Wallet functionality needs to be implemented.");
+  };
   
   return (
     <header className={cn(
@@ -138,8 +144,8 @@ export default function Header() {
             <Button variant="outline" asChild>
               <Link href="/dashboard">Dashboard</Link>
             </Button>
-            <Button>
-              <Link href="/causes">Donate</Link>
+            <Button onClick={handleConnectWallet}>
+              Connect Wallet
             </Button>
           </div>
         </div>
@@ -189,8 +195,8 @@ export default function Header() {
                   </Link>
                 </SheetClose>
                 <SheetClose asChild>
-                  <Button className="w-full mt-2">
-                    <Link href="/causes">Donate Now</Link>
+                  <Button className="w-full mt-2" onClick={handleConnectWallet}>
+                    Connect Wallet
                   </Button>
                 </SheetClose>
               </div>
