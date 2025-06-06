@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Heart, Twitter, Facebook, Instagram, Linkedin } from 'lucide-react';
+import { CharityOneIcon } from './CharityOneIcon';
 
 export default function Footer() {
   return (
@@ -10,7 +11,7 @@ export default function Footer() {
         <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
           <div className="space-y-4">
             <div className="flex items-center gap-2">
-              <Heart className="h-6 w-6 text-primary" />
+              <CharityOneIcon className="h-6 w-6 text-primary" />
               <span className="font-bold text-xl">CharityOne</span>
             </div>
             <p className="text-sm text-muted-foreground max-w-[300px]">
@@ -54,9 +55,9 @@ export default function Footer() {
                   About
                 </Link>
               </li>
-              <li>
-                <Link href="/community" className="text-muted-foreground hover:text-foreground transition-colors">
-                  Community
+               <li>
+                <Link href="/impact" className="text-muted-foreground hover:text-foreground transition-colors">
+                  Impact
                 </Link>
               </li>
             </ul>
@@ -77,7 +78,7 @@ export default function Footer() {
               </li>
               <li>
                 <Link href="/terms" className="text-muted-foreground hover:text-foreground transition-colors">
-                  Terms & Conditions
+                  Terms of Service
                 </Link>
               </li>
               <li>
