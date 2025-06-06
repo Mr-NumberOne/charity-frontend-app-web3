@@ -15,7 +15,6 @@ import {
 import { 
   Sheet, 
   SheetContent, 
-  SheetDescription, 
   SheetHeader, 
   SheetTitle, 
   SheetTrigger,
@@ -23,7 +22,7 @@ import {
 } from '@/components/ui/sheet';
 import { ThemeToggle } from './ThemeToggle';
 import { cn } from '@/lib/utils';
-import { Heart, Menu, X } from 'lucide-react';
+import { Heart, Menu, Github } from 'lucide-react';
 
 export default function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -124,9 +123,10 @@ export default function Header() {
                 </NavigationMenuContent>
               </NavigationMenuItem>
               <NavigationMenuItem>
-                <Link href="/community" legacyBehavior passHref>
+                <Link href="https://github.com/Mr-NumberOne/charity-frontend-app-web3" target="_blank" legacyBehavior passHref>
                   <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                    Community
+                    <Github className="h-4 w-4 mr-2" />
+                    GitHub
                   </NavigationMenuLink>
                 </Link>
               </NavigationMenuItem>
@@ -178,8 +178,9 @@ export default function Header() {
                   </Link>
                 </SheetClose>
                 <SheetClose asChild>
-                  <Link href="/community" className="py-2 hover:text-primary transition-colors">
-                    Community
+                  <Link href="https://github.com/Mr-NumberOne/charity-frontend-app-web3" target="_blank" className="py-2 hover:text-primary transition-colors flex items-center">
+                    <Github className="h-4 w-4 mr-2" />
+                    GitHub
                   </Link>
                 </SheetClose>
                 <SheetClose asChild>

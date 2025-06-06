@@ -11,7 +11,8 @@ export default function Home() {
     <div className="flex min-h-screen flex-col">
       {/* Hero Section */}
       <section className="relative bg-gradient-to-b from-primary/10 to-background py-20 md:py-28">
-        <div className="container px-4 md:px-6">
+        {/* The change is on the next line: added 'relative' and 'z-10' */}
+        <div className="container relative z-10 px-4 md:px-6">
           <div className="flex flex-col items-center space-y-4 text-center">
             <div className="space-y-2">
               <h1 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl lg:text-6xl/none">
