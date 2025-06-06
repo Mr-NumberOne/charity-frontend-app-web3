@@ -12,15 +12,14 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Loader2, CheckCircle2, PlusCircle, Edit, Search, HandCoins, ListChecks, CircleCheck, CircleX } from 'lucide-react';
-import { causesData as initialCausesData } from '@/lib/data'; // Import the centralized data
+import { causesData as initialCausesData } from '@/lib/data';
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { Progress } from '@/components/ui/progress';
-import { Label } from '@/components/ui/label'; // Added this import
+import { Label } from '@/components/ui/label';
 
-// --- Types and Schemas ---
 const charityFormSchema = z.object({
-  id: z.number().optional(), // Keep track of the ID for editing
+  id: z.number().optional(),
   name: z.string().min(2, { message: "Name must be at least 2 characters" }),
   description: z.string().min(10, { message: "Short description is required."}),
   longDescription: z.string().min(20, { message: "Detailed description is required." }),
@@ -33,11 +32,9 @@ const charityFormSchema = z.object({
 
 type CharityFormValues = z.infer<typeof charityFormSchema>;
 
-// Define a type for your cause data for better type safety
 type Cause = typeof initialCausesData[0];
 
 export default function DashboardPage() {
-  // --- State Management ---
   const [charities, setCharities] = useState<Cause[]>(initialCausesData);
   const [searchQuery, setSearchQuery] = useState('');
   const [filteredCharities, setFilteredCharities] = useState<Cause[]>(initialCausesData);
@@ -50,7 +47,6 @@ export default function DashboardPage() {
     resolver: zodResolver(charityFormSchema),
   });
 
-  // --- Calculated Stats ---
   const stats = useMemo(() => {
     const totalDonations = charities.reduce((acc, cause) => acc + cause.raised, 0);
     const totalCharities = charities.length;
@@ -59,7 +55,6 @@ export default function DashboardPage() {
     return { totalDonations, totalCharities, activeCharities, inactiveCharities };
   }, [charities]);
 
-  // --- Effects ---
   useEffect(() => {
     const lowercasedQuery = searchQuery.toLowerCase();
     const filtered = charities.filter(cause => 
@@ -70,12 +65,8 @@ export default function DashboardPage() {
     setFilteredCharities(filtered);
   }, [searchQuery, charities]);
 
-  // --- Handlers ---
   const handleAddNew = () => {
-    form.reset({
-      name: "", description: "", longDescription: "", category: "",
-      walletAddress: "", website: "", imageSrc: "", isActive: false
-    });
+    form.reset({ name: "", description: "", longDescription: "", category: "", walletAddress: "", website: "", imageSrc: "", isActive: false });
     setSelectedCharity(null);
     setIsEditDialogOpen(true);
   };
@@ -97,7 +88,7 @@ export default function DashboardPage() {
       if (selectedCharity) {
         setCharities(prev => prev.map(c => c.id === selectedCharity.id ? { ...c, ...data } : c));
       } else {
-        const newCharity = { ...data, id: Date.now(), fundedPercentage: 0, goal: 50000, raised: 0, donors: 0, daysLeft: 30, updates: [] , featured: false};
+        const newCharity = { ...data, id: Date.now(), fundedPercentage: 0, goal: 50, raised: 0, donors: 0, daysLeft: 30, updates: [] , featured: false};
         setCharities(prev => [newCharity, ...prev]);
       }
       
@@ -120,7 +111,6 @@ export default function DashboardPage() {
         </Button>
       </div>
 
-      {/* General Stats Section */}
       <div className="mt-8 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -128,7 +118,7 @@ export default function DashboardPage() {
             <HandCoins className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">${stats.totalDonations.toLocaleString()}</div>
+            <div className="text-2xl font-bold">{stats.totalDonations.toLocaleString()} ETH</div>
             <p className="text-xs text-muted-foreground">Across all charities</p>
           </CardContent>
         </Card>
@@ -194,10 +184,10 @@ export default function DashboardPage() {
                   <div>
                     <div className="flex justify-between text-sm mb-1">
                       <span className="text-muted-foreground">Raised</span>
-                      <span className="font-medium">${cause.raised.toLocaleString()}</span>
+                      <span className="font-medium">{cause.raised.toLocaleString()} ETH</span>
                     </div>
                     <Progress value={cause.fundedPercentage} className="h-2" />
-                     <p className="text-xs text-muted-foreground text-right mt-1">{cause.fundedPercentage}% of ${cause.goal.toLocaleString()}</p>
+                     <p className="text-xs text-muted-foreground text-right mt-1">{cause.fundedPercentage}% of {cause.goal.toLocaleString()} ETH</p>
                   </div>
                 </CardContent>
                 <CardFooter className="flex justify-between items-center gap-2 bg-muted/50 p-3">
@@ -227,7 +217,6 @@ export default function DashboardPage() {
         </Card>
       </div>
       
-      {/* Edit/Create Dialog */}
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
         <DialogContent className="sm:max-w-[625px]">
           <DialogHeader>
@@ -257,7 +246,6 @@ export default function DashboardPage() {
         </DialogContent>
       </Dialog>
       
-      {/* Success Dialog */}
       <Dialog open={showSuccess} onOpenChange={setShowSuccess}>
         <DialogContent className="sm:max-w-[425px]">
           <div className="flex flex-col items-center justify-center py-4">

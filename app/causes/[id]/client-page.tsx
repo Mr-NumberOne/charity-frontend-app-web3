@@ -10,10 +10,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import DonateDialog from '@/components/DonateDialog';
 import { Heart, Share2, Clock, Users, Globe, ChevronLeft } from 'lucide-react';
 
-// This component now receives the 'cause' data as a prop
 export default function CauseClientPage({ cause }: { cause: any }) {
   const [showDonateDialog, setShowDonateDialog] = useState(false);
-
+  
   return (
     <div className="container px-4 py-8 md:px-6 md:py-12">
       <Link href="/causes" className="inline-flex items-center text-muted-foreground hover:text-foreground mb-6">
@@ -97,9 +96,9 @@ export default function CauseClientPage({ cause }: { cause: any }) {
               <h3 className="font-semibold">Progress</h3>
               <Progress value={cause.fundedPercentage} className="h-2 mt-2" />
               <div className="mt-2 flex justify-between text-sm">
-                <span>${cause.raised.toLocaleString()}</span>
+                <span>{cause.raised.toLocaleString()} ETH</span>
                 <span>
-                  <span className="font-medium">{cause.fundedPercentage}%</span> of ${cause.goal.toLocaleString()}
+                  <span className="font-medium">{cause.fundedPercentage}%</span> of {cause.goal.toLocaleString()} ETH
                 </span>
               </div>
             </div>

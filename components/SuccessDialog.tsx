@@ -37,7 +37,7 @@ export default function SuccessDialog({ open, onOpenChange, causeName, amount }:
           
           <div className="my-6 w-full rounded-lg bg-muted p-4 text-center">
             <p className="text-sm text-muted-foreground">Your donation of</p>
-            <p className="text-2xl font-bold">${amount}</p>
+            <p className="text-2xl font-bold">{amount} ETH</p>
             <p className="text-sm text-muted-foreground">to <span className="font-medium text-foreground">{causeName}</span> was successful</p>
           </div>
           

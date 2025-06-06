@@ -11,7 +11,7 @@ export default function Footer() {
           <div className="space-y-4">
             <div className="flex items-center gap-2">
               <Heart className="h-6 w-6 text-primary" />
-              <span className="font-bold text-xl">CharityHub</span>
+              <span className="font-bold text-xl">CharityOne</span>
             </div>
             <p className="text-sm text-muted-foreground max-w-[300px]">
               Making a difference. Every donation, no matter how small, can help create a lasting impact.
@@ -103,7 +103,7 @@ export default function Footer() {
         <div className="mt-12 border-t pt-6">
           <div className="flex flex-col items-center justify-between gap-4 md:flex-row">
             <p className="text-center text-sm text-muted-foreground md:text-left">
-              © {new Date().getFullYear()} CharityHub. All rights reserved.
+              © {new Date().getFullYear()} CharityOne. All rights reserved.
             </p>
             <p className="text-center text-xs text-muted-foreground md:text-left">
               Made with ❤ for a better world

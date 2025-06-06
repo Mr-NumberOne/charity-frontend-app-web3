@@ -1,17 +1,17 @@
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import CauseCard from '@/components/CauseCard';
 import Newsletter from '@/components/Newsletter';
 import { HeartHandshake, Globe, HandCoins, Users } from 'lucide-react';
+import { causesData } from '@/lib/data';
 
 export default function Home() {
+  const totalEthRaised = causesData.reduce((acc, cause) => acc + cause.raised, 0);
+
   return (
     <div className="flex min-h-screen flex-col">
       {/* Hero Section */}
       <section className="relative bg-gradient-to-b from-primary/10 to-background py-20 md:py-28">
-        {/* The change is on the next line: added 'relative' and 'z-10' */}
         <div className="container relative z-10 px-4 md:px-6">
           <div className="flex flex-col items-center space-y-4 text-center">
             <div className="space-y-2">
@@ -49,6 +49,15 @@ export default function Home() {
           <div className="grid grid-cols-2 gap-6 md:grid-cols-4 lg:gap-12">
             <div className="flex flex-col items-center justify-center">
               <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 mb-2">
+                <HandCoins className="h-8 w-8 text-primary" />
+              </div>
+              <div className="text-center">
+                <h3 className="text-3xl font-bold">{totalEthRaised.toFixed(2)} ETH</h3>
+                <p className="text-sm text-muted-foreground">Funds Raised</p>
+              </div>
+            </div>
+            <div className="flex flex-col items-center justify-center">
+              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 mb-2">
                 <HeartHandshake className="h-8 w-8 text-primary" />
               </div>
               <div className="text-center">
@@ -63,15 +72,6 @@ export default function Home() {
               <div className="text-center">
                 <h3 className="text-3xl font-bold">50+</h3>
                 <p className="text-sm text-muted-foreground">Countries Reached</p>
-              </div>
-            </div>
-            <div className="flex flex-col items-center justify-center">
-              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 mb-2">
-                <HandCoins className="h-8 w-8 text-primary" />
-              </div>
-              <div className="text-center">
-                <h3 className="text-3xl font-bold">$2.5M</h3>
-                <p className="text-sm text-muted-foreground">Funds Raised</p>
               </div>
             </div>
             <div className="flex flex-col items-center justify-center">
@@ -105,35 +105,17 @@ export default function Home() {
           </div>
           
           <div className="mt-8 grid gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-            <CauseCard 
-              name="Ocean Cleanup"
-              description="Fighting ocean plastic pollution"
-              imageSrc="https://images.pexels.com/photos/1001682/pexels-photo-1001682.jpeg" 
-              category="Environment"
-              fundedPercentage={76}
-            />
-            <CauseCard 
-              name="Reforestation Project"
-              description="Planting trees in deforested areas"
-              imageSrc="https://images.pexels.com/photos/957024/forest-trees-perspective-bright-957024.jpeg" 
-              category="Climate Action"
-              fundedPercentage={83}
-              featured={true}
-            />
-            <CauseCard 
-              name="Clean Water Initiative"
-              description="Providing clean water to rural communities"
-              imageSrc="https://images.pexels.com/photos/1552941/pexels-photo-1552941.jpeg" 
-              category="Humanitarian"
-              fundedPercentage={65}
-            />
-            <CauseCard 
-              name="Wildlife Conservation"
-              description="Protecting endangered species"
-              imageSrc="https://images.pexels.com/photos/247431/pexels-photo-247431.jpeg" 
-              category="Wildlife"
-              fundedPercentage={42}
-            />
+            {causesData.filter(c => c.featured).slice(0, 4).map(cause => (
+               <CauseCard 
+                key={cause.id}
+                name={cause.name}
+                description={cause.description}
+                imageSrc={cause.imageSrc} 
+                category={cause.category}
+                fundedPercentage={cause.fundedPercentage}
+                featured={cause.featured}
+              />
+            ))}
           </div>
           
           <div className="mt-6 flex justify-center md:hidden">
@@ -169,9 +151,9 @@ export default function Home() {
               <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary mb-4">
                 <span className="text-xl font-bold text-primary-foreground">2</span>
               </div>
-              <h3 className="text-xl font-bold">Make a Donation</h3>
+              <h3 className="text-xl font-bold">Connect & Donate</h3>
               <p className="mt-2 text-muted-foreground">
-                Contribute any amount you're comfortable with. Every donation, no matter how small, makes an impact.
+                Connect your wallet and contribute any amount you're comfortable with. Every donation makes an impact.
               </p>
             </div>
             

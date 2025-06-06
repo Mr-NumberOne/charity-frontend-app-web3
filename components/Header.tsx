@@ -22,7 +22,8 @@ import {
 } from '@/components/ui/sheet';
 import { ThemeToggle } from './ThemeToggle';
 import { cn } from '@/lib/utils';
-import { Heart, Menu, Github } from 'lucide-react';
+import { Menu, Github } from 'lucide-react';
+import { CharityOneIcon } from './CharityOneIcon'; // Import the new icon
 
 export default function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -38,7 +39,6 @@ export default function Header() {
 
   const handleConnectWallet = () => {
     // TODO: Implement your actual wallet connection logic here.
-    // This could involve using a library like wagmi, ethers.js, etc.
     console.log("Connect Wallet button clicked. Implement connection logic.");
     alert("Connect Wallet functionality needs to be implemented.");
   };
@@ -53,8 +53,8 @@ export default function Header() {
       <div className="container flex h-16 items-center justify-between px-4 md:px-6">
         <div className="flex items-center gap-2">
           <Link href="/" className="flex items-center space-x-2">
-            <Heart className="h-6 w-6 text-primary" />
-            <span className="font-bold text-xl hidden md:inline-block">CharityHub</span>
+            <CharityOneIcon className="h-6 w-6 text-primary" />
+            <span className="font-bold text-xl hidden md:inline-block">CharityOne</span>
           </Link>
         </div>
         
@@ -163,8 +163,8 @@ export default function Header() {
             <SheetContent side="right">
               <SheetHeader className="mb-6">
                 <SheetTitle className="flex items-center gap-2">
-                  <Heart className="h-5 w-5 text-primary" />
-                  <span>CharityHub</span>
+                  <CharityOneIcon className="h-5 w-5 text-primary" />
+                  <span>CharityOne</span>
                 </SheetTitle>
               </SheetHeader>
               <div className="flex flex-col space-y-4">
