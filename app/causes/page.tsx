@@ -11,7 +11,7 @@ import {
   SelectValue 
 } from '@/components/ui/select';
 import CauseCard from '@/components/CauseCard';
-import { Search, ChevronDown } from 'lucide-react';
+import { Search } from 'lucide-react';
 import { causesData } from '@/lib/data'; // Import the centralized data
 
 export default function CausesPage() {
@@ -20,12 +20,13 @@ export default function CausesPage() {
   
   const categories = ['All', 'Environment', 'Climate Action', 'Humanitarian', 'Wildlife', 'Education', 'Healthcare'];
   
-  // Filter causes based on search and category
+  // Filter causes to only show active ones, and then apply search and category filters
   const filteredCauses = causesData.filter(cause => {
+    const isActive = cause.isActive;
     const matchesSearch = cause.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
                          cause.description.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesCategory = categoryFilter === 'All' || cause.category === categoryFilter;
-    return matchesSearch && matchesCategory;
+    return isActive && matchesSearch && matchesCategory;
   });
 
   // Group featured causes at the top
@@ -71,12 +72,6 @@ export default function CausesPage() {
             </SelectContent>
           </Select>
         </div>
-        <div className="flex justify-end">
-          <Button variant="outline" className="flex gap-1 items-center">
-            <span>Create Cause</span>
-            <ChevronDown className="h-4 w-4" />
-          </Button>
-        </div>
       </div>
       
       {/* Causes Grid */}
@@ -97,7 +92,7 @@ export default function CausesPage() {
       {/* No Results */}
       {sortedCauses.length === 0 && (
         <div className="flex flex-col items-center justify-center py-12">
-          <p className="text-lg text-muted-foreground">No causes found matching your criteria.</p>
+          <p className="text-lg text-muted-foreground">No active causes found matching your criteria.</p>
           <Button 
             variant="outline" 
             className="mt-4"

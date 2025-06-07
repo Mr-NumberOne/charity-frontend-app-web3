@@ -11,7 +11,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Loader2, CheckCircle2, PlusCircle, Edit, Search, HandCoins, ListChecks, CircleCheck, CircleX } from 'lucide-react';
+import { Loader2, CheckCircle2, PlusCircle, Edit, Search, HandCoins, ListChecks, CircleCheck, CircleX, ImageIcon } from 'lucide-react';
 import { causesData as initialCausesData } from '@/lib/data';
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
@@ -46,6 +46,9 @@ export default function DashboardPage() {
   const form = useForm<CharityFormValues>({
     resolver: zodResolver(charityFormSchema),
   });
+  
+  // Watch for changes in the imageSrc field to update the preview
+  const imageSrcValue = form.watch("imageSrc");
 
   const stats = useMemo(() => {
     const totalDonations = charities.reduce((acc, cause) => acc + cause.raised, 0);
@@ -62,7 +65,10 @@ export default function DashboardPage() {
       cause.category.toLowerCase().includes(lowercasedQuery) ||
       cause.description.toLowerCase().includes(lowercasedQuery)
     );
-    setFilteredCharities(filtered);
+    
+    const sorted = filtered.sort((a, b) => Number(b.isActive) - Number(a.isActive));
+
+    setFilteredCharities(sorted);
   }, [searchQuery, charities]);
 
   const handleAddNew = () => {
@@ -171,8 +177,8 @@ export default function DashboardPage() {
           </CardHeader>
           <CardContent className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {filteredCharities.map((cause) => (
-              <Card key={cause.id} className="flex flex-col overflow-hidden transition-all hover:shadow-lg">
-                <div className="relative aspect-video">
+              <Card key={cause.id} className={`flex flex-col overflow-hidden transition-all hover:shadow-lg ${!cause.isActive && 'opacity-60'}`}>
+                <div className={`relative aspect-video ${!cause.isActive && 'grayscale'}`}>
                   <Image src={cause.imageSrc} alt={cause.name} fill className="object-cover" />
                   <Badge variant="secondary" className="absolute top-3 left-3 bg-background/80 backdrop-blur-sm">{cause.category}</Badge>
                 </div>
@@ -217,6 +223,7 @@ export default function DashboardPage() {
         </Card>
       </div>
       
+      {/* Edit/Create Dialog */}
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
         <DialogContent className="sm:max-w-[625px]">
           <DialogHeader>
@@ -233,6 +240,22 @@ export default function DashboardPage() {
               <FormField control={form.control} name="category" render={({ field }) => ( <FormItem> <FormLabel>Category</FormLabel> <FormControl><Input placeholder="e.g., Environment, Healthcare" {...field} /></FormControl> <FormMessage /> </FormItem> )}/>
               <FormField control={form.control} name="website" render={({ field }) => ( <FormItem> <FormLabel>Website</FormLabel> <FormControl><Input placeholder="https://example.org" {...field} /></FormControl> <FormMessage /> </FormItem> )}/>
               <FormField control={form.control} name="imageSrc" render={({ field }) => ( <FormItem> <FormLabel>Image URL</FormLabel> <FormControl><Input placeholder="https://images.pexels.com/..." {...field} /></FormControl> <FormMessage /> </FormItem> )}/>
+              
+              {imageSrcValue && (
+                <div className="mt-2 rounded-md border border-input p-2">
+                  <Label className="text-sm text-muted-foreground">Image Preview</Label>
+                  <div className="relative mt-2 aspect-video w-full overflow-hidden rounded-md bg-muted">
+                    <Image
+                      src={imageSrcValue}
+                      alt="Image preview"
+                      fill
+                      className="object-cover"
+                      onError={(e) => { e.currentTarget.src = 'https://placehold.co/600x400/222/FFF?text=Invalid+Image'; }}
+                    />
+                  </div>
+                </div>
+              )}
+
               <FormField control={form.control} name="walletAddress" render={({ field }) => ( <FormItem> <FormLabel>Wallet Address</FormLabel> <FormControl><Input placeholder="0x000..." {...field} /></FormControl> <FormMessage /> </FormItem> )}/>
               <FormField control={form.control} name="isActive" render={({ field }) => ( <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm"> <div className="space-y-0.5"> <FormLabel>Status</FormLabel> <FormDescription>Activate this charity to make it visible to users.</FormDescription> </div> <FormControl><Switch checked={field.value} onCheckedChange={field.onChange}/></FormControl> </FormItem> )}/>
               <DialogFooter className="pt-4 sticky bottom-0 bg-background/95 pb-4">
