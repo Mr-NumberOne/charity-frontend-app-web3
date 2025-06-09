@@ -17,6 +17,7 @@ import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { Progress } from '@/components/ui/progress';
 import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 const charityFormSchema = z.object({
   id: z.number().optional(),
@@ -28,11 +29,15 @@ const charityFormSchema = z.object({
   website: z.string().url({ message: "Please enter a valid URL" }),
   imageSrc: z.string().url({ message: "Please enter a valid image URL" }),
   isActive: z.boolean().default(false),
+  featured: z.boolean().default(false),
+  goal: z.coerce.number().min(1, { message: "Goal must be at least 1" }),
 });
 
 type CharityFormValues = z.infer<typeof charityFormSchema>;
 
 type Cause = typeof initialCausesData[0];
+
+const categories = ['Environment', 'Climate Action', 'Humanitarian', 'Wildlife', 'Education', 'Healthcare'];
 
 export default function DashboardPage() {
   const [charities, setCharities] = useState<Cause[]>(initialCausesData);
@@ -45,6 +50,18 @@ export default function DashboardPage() {
 
   const form = useForm<CharityFormValues>({
     resolver: zodResolver(charityFormSchema),
+    defaultValues: {
+      name: "",
+      description: "",
+      longDescription: "",
+      category: "",
+      walletAddress: "",
+      website: "",
+      imageSrc: "",
+      isActive: false,
+      featured: false,
+      goal: 0,
+    }
   });
   
   // Watch for changes in the imageSrc field to update the preview
@@ -72,7 +89,7 @@ export default function DashboardPage() {
   }, [searchQuery, charities]);
 
   const handleAddNew = () => {
-    form.reset({ name: "", description: "", longDescription: "", category: "", walletAddress: "", website: "", imageSrc: "", isActive: false });
+    form.reset({ name: "", description: "", longDescription: "", category: "", walletAddress: "", website: "", imageSrc: "", isActive: false, featured: false, goal: 0 });
     setSelectedCharity(null);
     setIsEditDialogOpen(true);
   };
@@ -94,7 +111,13 @@ export default function DashboardPage() {
       if (selectedCharity) {
         setCharities(prev => prev.map(c => c.id === selectedCharity.id ? { ...c, ...data } : c));
       } else {
-        const newCharity = { ...data, id: Date.now(), fundedPercentage: 0, goal: 50, raised: 0, donors: 0, featured: false};
+        const newCharity: Cause = { 
+          ...data, 
+          id: Date.now(), 
+          fundedPercentage: 0, 
+          raised: 0, 
+          donors: 0
+        };
         setCharities(prev => [newCharity, ...prev]);
       }
       
@@ -237,7 +260,26 @@ export default function DashboardPage() {
               <FormField control={form.control} name="name" render={({ field }) => ( <FormItem> <FormLabel>Name</FormLabel> <FormControl><Input placeholder="Enter charity name" {...field} /></FormControl> <FormMessage /> </FormItem> )}/>
               <FormField control={form.control} name="description" render={({ field }) => ( <FormItem> <FormLabel>Short Description</FormLabel> <FormControl><Input placeholder="A short, catchy description" {...field} /></FormControl> <FormMessage /> </FormItem> )}/>
               <FormField control={form.control} name="longDescription" render={({ field }) => ( <FormItem> <FormLabel>Detailed Description</FormLabel> <FormControl><Textarea placeholder="Describe the charity's mission in detail" {...field} className="min-h-[120px]"/></FormControl> <FormMessage /> </FormItem> )}/>
-              <FormField control={form.control} name="category" render={({ field }) => ( <FormItem> <FormLabel>Category</FormLabel> <FormControl><Input placeholder="e.g., Environment, Healthcare" {...field} /></FormControl> <FormMessage /> </FormItem> )}/>
+              <FormField control={form.control} name="category" render={({ field }) => ( 
+                <FormItem> 
+                  <FormLabel>Category</FormLabel> 
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select a category" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {categories.map((category) => (
+                        <SelectItem key={category} value={category}>
+                          {category}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem> 
+              )}/>
               <FormField control={form.control} name="website" render={({ field }) => ( <FormItem> <FormLabel>Website</FormLabel> <FormControl><Input placeholder="https://example.org" {...field} /></FormControl> <FormMessage /> </FormItem> )}/>
               <FormField control={form.control} name="imageSrc" render={({ field }) => ( <FormItem> <FormLabel>Image URL</FormLabel> <FormControl><Input placeholder="https://images.pexels.com/..." {...field} /></FormControl> <FormMessage /> </FormItem> )}/>
               
@@ -257,7 +299,13 @@ export default function DashboardPage() {
               )}
 
               <FormField control={form.control} name="walletAddress" render={({ field }) => ( <FormItem> <FormLabel>Wallet Address</FormLabel> <FormControl><Input placeholder="0x000..." {...field} /></FormControl> <FormMessage /> </FormItem> )}/>
+              
+              <FormField control={form.control} name="goal" render={({ field }) => ( <FormItem> <FormLabel>Donation Goal (ETH)</FormLabel> <FormControl><Input type="number" placeholder="Enter the goal in ETH" {...field} /></FormControl> <FormMessage /> </FormItem> )}/>
+              
+              <FormField control={form.control} name="featured" render={({ field }) => ( <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm"> <div className="space-y-0.5"> <FormLabel>Featured</FormLabel> <FormDescription>Set this cause as a featured cause on the homepage.</FormDescription> </div> <FormControl><Switch checked={field.value} onCheckedChange={field.onChange}/></FormControl> </FormItem> )}/>
+              
               <FormField control={form.control} name="isActive" render={({ field }) => ( <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm"> <div className="space-y-0.5"> <FormLabel>Status</FormLabel> <FormDescription>Activate this charity to make it visible to users.</FormDescription> </div> <FormControl><Switch checked={field.value} onCheckedChange={field.onChange}/></FormControl> </FormItem> )}/>
+
               <DialogFooter className="pt-4 sticky bottom-0 bg-background/95 pb-4">
                 <Button variant="outline" type="button" onClick={() => setIsEditDialogOpen(false)}>Cancel</Button>
                 <Button type="submit" disabled={isSubmitting}>
