@@ -94,7 +94,7 @@ export default function DashboardPage() {
       if (selectedCharity) {
         setCharities(prev => prev.map(c => c.id === selectedCharity.id ? { ...c, ...data } : c));
       } else {
-        const newCharity = { ...data, id: Date.now(), fundedPercentage: 0, goal: 50, raised: 0, donors: 0, daysLeft: 30, updates: [] , featured: false};
+        const newCharity = { ...data, id: Date.now(), fundedPercentage: 0, goal: 50, raised: 0, donors: 0, featured: false};
         setCharities(prev => [newCharity, ...prev]);
       }
       
