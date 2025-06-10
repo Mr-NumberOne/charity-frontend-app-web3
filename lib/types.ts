@@ -1,16 +1,15 @@
-export type Cause = {
-    id: number;
-    name: string;
-    description: string;
-    longDescription: string;
-    imageSrc: string;
-    category: string;
-    website: string;
-    goal: bigint;
-    raised: bigint;
-    donorsCount: bigint;
-    walletAddress: `0x${string}`;
-    isActive: boolean;
-    featured: boolean;
-  };
-  
+export interface Cause {
+  id: number
+  name: string
+  description: string
+  longDescription: string
+  imageSrc: string
+  category: string
+  goal: bigint
+  raised: bigint
+  donorsCount: bigint
+  website: string
+  walletAddress: string
+  isActive: boolean
+  featured: boolean
+}
