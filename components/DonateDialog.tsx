@@ -149,7 +149,7 @@ export default function DonateDialog({ causeId, causeName, open, onOpenChange, t
                   You have to connect you wallet
                 </DialogDescription>
                 <Button className='m-auto'>
-                  <w3m-button />
+                  <w3m-button size='xxl' />
                 </Button>
               </DialogHeader>
             </div>}
