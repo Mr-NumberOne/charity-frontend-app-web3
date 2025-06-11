@@ -1,118 +1,147 @@
-"use client"
+"use client";
 
-import { useState } from 'react';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { useState, useEffect } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+import { useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
+import { parseEther, type Address } from 'viem';
+import { toast } from '@/hooks/use-toast';
+
+// Local Project Imports
+import { CauseRegistryABI } from "@/lib/abi/CauseRegistry";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Loader2 } from 'lucide-react';
 import SuccessDialog from './SuccessDialog';
 
+// Get the contract address from environment variables.
+const causeRegistryAddress = process.env.NEXT_PUBLIC_CAUSE_REGISTRY_ADDRESS as Address | undefined;
+
+// Define the validation schema for the donation form.
+const FormSchema = z.object({
+  amount: z.string().refine(val => !isNaN(parseFloat(val)) && parseFloat(val) > 0, {
+    message: "Amount must be a positive number.",
+  }),
+});
+
 interface DonateDialogProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
+  causeId: number;
   causeName: string;
+  open?: boolean; // Control the dialog's open state from the parent
+  onOpenChange?: (open: boolean) => void; // Notify the parent when the open state changes
+  triggerButton?: React.ReactNode; // Optional custom trigger button
 }
 
-export default function DonateDialog({ open, onOpenChange, causeName }: DonateDialogProps) {
-  const [amount, setAmount] = useState("");
-  const [processingDonation, setProcessingDonation] = useState(false);
+/**
+ * A dialog component for making a donation to a specific cause.
+ * It handles form validation, transaction submission, and feedback to the user.
+ */
+export default function DonateDialog({ causeId, causeName, open, onOpenChange, triggerButton }: DonateDialogProps) {
   const [showSuccessDialog, setShowSuccessDialog] = useState(false);
-  
-  const presetAmounts = ["0.01", "0.05", "0.1", "0.25"];
-  
-  const handleDonate = () => {
-    if (!amount) return;
-    
-    setProcessingDonation(true);
-    
-    // Simulate processing a blockchain transaction
-    setTimeout(() => {
-      setProcessingDonation(false);
-      onOpenChange(false);
-      
-      // Show success dialog
-      setShowSuccessDialog(true);
-    }, 2000);
+  const [internalOpen, setInternalOpen] = useState(false);
+
+  // Determine if the dialog is controlled by parent or internally
+  const isControlled = open !== undefined && onOpenChange !== undefined;
+  const currentOpen = isControlled ? open : internalOpen;
+  const setCurrentOpen = isControlled ? onOpenChange : setInternalOpen;
+
+  const form = useForm<z.infer<typeof FormSchema>>({
+    resolver: zodResolver(FormSchema),
+    defaultValues: { amount: '' },
+  });
+
+  // wagmi hook to send a transaction
+  const { data: hash, writeContract, isPending, error } = useWriteContract();
+
+  // wagmi hook to wait for the transaction to be confirmed on the blockchain
+  const { isLoading: isConfirming, isSuccess: isConfirmed } = useWaitForTransactionReceipt({ hash });
+
+  // Function to handle form submission
+  const onSubmit = (data: z.infer<typeof FormSchema>) => {
+    if (!causeRegistryAddress) {
+        toast({ title: "Error", description: "Contract address is not configured.", variant: "destructive" });
+        return;
+    }
+    // Call the `donateToCause` function on the contract
+    writeContract({
+      address: causeRegistryAddress,
+      abi: CauseRegistryABI,
+      functionName: 'donateToCause',
+      args: [BigInt(causeId)], // Pass the numeric cause ID
+      value: parseEther(data.amount), // The amount to send with the transaction
+    }, {
+        onSuccess: () => {
+          toast({ title: "Transaction Sent!", description: "Waiting for confirmation from your wallet..." });
+          form.reset();
+        },
+        onError: (err) => {
+          // Provide user-friendly error messages
+          toast({ title: "Transaction Error", description: (err as any)?.shortMessage || err.message, variant: "destructive" });
+        }
+    });
   };
-  
+
+  // When the transaction is confirmed, close this dialog and show the success dialog.
+  useEffect(() => {
+    if (isConfirmed) {
+      setCurrentOpen(false);
+      // Use a timeout to ensure this dialog has time to close before the next one opens.
+      setTimeout(() => setShowSuccessDialog(true), 100);
+    }
+  }, [isConfirmed, setCurrentOpen]);
+
   return (
     <>
-      <Dialog open={open} onOpenChange={onOpenChange}>
+      <Dialog open={currentOpen} onOpenChange={setCurrentOpen}>
+        {/*
+          FIX: Render a trigger only under specific conditions to avoid duplicates.
+          1. If a custom `triggerButton` is provided, use it.
+          2. If no `triggerButton` is provided AND the component is NOT controlled by a parent, render a default button.
+          This prevents the default button from showing up when the dialog is controlled from `CauseCard`.
+        */}
+        {triggerButton && <DialogTrigger asChild>{triggerButton}</DialogTrigger>}
+        {!triggerButton && !isControlled && (
+          <DialogTrigger asChild>
+            <Button>Donate</Button>
+          </DialogTrigger>
+        )}
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
-            <DialogTitle className="flex gap-2 items-center">
-              Donate to <span className="text-primary">{causeName}</span>
-            </DialogTitle>
+            <DialogTitle>Donate to {causeName}</DialogTitle>
             <DialogDescription>
-              You are about to support a valuable cause. Every donation makes a difference!
+              Your contribution will directly support this cause. Enter the amount in ETH you'd like to donate.
             </DialogDescription>
           </DialogHeader>
-          
-          <div className="flex items-center space-x-3 py-4">
-            <div className="h-12 w-12 overflow-hidden rounded-full bg-primary/10 flex items-center justify-center">
-              <span className="text-lg font-bold text-primary">
-                {causeName.charAt(0)}
-              </span>
-            </div>
-            <div>
-              <h4 className="font-medium">{causeName}</h4>
-              <p className="text-sm text-muted-foreground">Verified Organization</p>
-            </div>
-          </div>
-          
-          <div className="space-y-4 py-2">
-            <div>
-              <Label htmlFor="amount">Donation Amount (ETH)</Label>
-              <Input 
-                id="amount" 
-                placeholder="Enter amount in ETH" 
-                type="number"
-                step="0.01"
-                min="0.001"
-                value={amount}
-                onChange={(e) => setAmount(e.target.value)}
-                className="mt-1"
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              <FormField
+                control={form.control}
+                name="amount"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Amount (ETH)</FormLabel>
+                    <FormControl>
+                      <Input placeholder="0.1" {...field} type="number" step="0.01" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
-              <div className="grid grid-cols-4 gap-2 mt-2">
-                {presetAmounts.map((preset) => (
-                  <Button 
-                    key={preset} 
-                    variant={amount === preset ? "default" : "outline"}
-                    onClick={() => setAmount(preset)}
-                    className="h-9"
-                  >
-                    {preset}
-                  </Button>
-                ))}
-              </div>
-            </div>
-          </div>
-          
-          <DialogFooter>
-            <Button 
-              variant="outline" 
-              onClick={() => onOpenChange(false)}
-              disabled={processingDonation}
-            >
-              Cancel
-            </Button>
-            <Button 
-              onClick={handleDonate} 
-              disabled={!amount || processingDonation}
-              className="min-w-[100px]"
-            >
-              {processingDonation ? "Processing..." : "Donate with Wallet"}
-            </Button>
-          </DialogFooter>
+              <Button type="submit" className="w-full" disabled={isPending || isConfirming}>
+                {(isPending || isConfirming) && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                {isConfirming ? 'Confirming Transaction...' : isPending ? 'Check Your Wallet' : 'Submit Donation'}
+              </Button>
+              {error && <p className="text-xs text-destructive text-center">{(error as any).shortMessage}</p>}
+            </form>
+          </Form>
         </DialogContent>
       </Dialog>
       
-      <SuccessDialog 
-        open={showSuccessDialog}
-        onOpenChange={setShowSuccessDialog}
-        causeName={causeName}
-        amount={amount}
-      />
+      {/* This dialog is shown after a successful transaction confirmation */}
+      <SuccessDialog open={showSuccessDialog} onOpenChange={setShowSuccessDialog} txHash={hash} />
     </>
   );
 }

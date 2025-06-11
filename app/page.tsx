@@ -1,177 +1,123 @@
-import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import CauseCard from '@/components/CauseCard';
+import Link from 'next/link';
+import Image from 'next/image';
 import Newsletter from '@/components/Newsletter';
-import { HeartHandshake, Globe, HandCoins, Users } from 'lucide-react';
-import { causesData } from '@/lib/data';
+import { FeaturedCauses } from '@/components/FeaturedCauses';
+import { ImpactStats } from '@/components/ImpactStats';
+import { ShieldCheck, Zap, TrendingUp } from 'lucide-react';
 
-export default function Home() {
-  const totalEthRaised = causesData.reduce((acc, cause) => acc + cause.raised, 0);
-
+export default function HomePage() {
   return (
-    <div className="flex min-h-screen flex-col">
+    <main className="bg-background text-foreground">
       {/* Hero Section */}
-      <section className="relative bg-gradient-to-b from-primary/10 to-background py-20 md:py-28">
-        <div className="container relative z-10 px-4 md:px-6">
-          <div className="flex flex-col items-center space-y-4 text-center">
-            <div className="space-y-2">
-              <h1 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl lg:text-6xl/none">
-                Make a Difference <span className="text-primary">Today</span>
-              </h1>
-              <p className="mx-auto max-w-[700px] text-muted-foreground md:text-xl">
-                Support causes you care about and help create a better world for everyone.
-                Every donation makes an impact.
-              </p>
-            </div>
-            <div className="flex flex-col gap-2 min-[400px]:flex-row">
-              <Button asChild size="lg">
-                <Link href="/causes">Explore Causes</Link>
-              </Button>
-              <Button variant="outline" size="lg">
-                <Link href="/about">Learn More</Link>
-              </Button>
-            </div>
-          </div>
-        </div>
-        
-        <div className="absolute bottom-0 left-0 right-0">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320" className="w-full">
-            <path fill="hsl(var(--background))" fillOpacity="1" 
-              d="M0,288L48,272C96,256,192,224,288,197.3C384,171,480,149,576,165.3C672,181,768,235,864,250.7C960,267,1056,245,1152,224C1248,203,1344,181,1392,170.7L1440,160L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z">
-            </path>
-          </svg>
-        </div>
-      </section>
-
-      {/* Stats Section */}
-      <section className="py-12 md:py-16 bg-background">
-        <div className="container px-4 md:px-6">
-          <div className="grid grid-cols-2 gap-6 md:grid-cols-4 lg:gap-12">
-            <div className="flex flex-col items-center justify-center">
-              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 mb-2">
-                <HandCoins className="h-8 w-8 text-primary" />
-              </div>
-              <div className="text-center">
-                <h3 className="text-3xl font-bold">{totalEthRaised.toFixed(2)} ETH</h3>
-                <p className="text-sm text-muted-foreground">Funds Raised</p>
-              </div>
-            </div>
-            <div className="flex flex-col items-center justify-center">
-              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 mb-2">
-                <HeartHandshake className="h-8 w-8 text-primary" />
-              </div>
-              <div className="text-center">
-                <h3 className="text-3xl font-bold">120+</h3>
-                <p className="text-sm text-muted-foreground">Causes Supported</p>
-              </div>
-            </div>
-            <div className="flex flex-col items-center justify-center">
-              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 mb-2">
-                <Globe className="h-8 w-8 text-primary" />
-              </div>
-              <div className="text-center">
-                <h3 className="text-3xl font-bold">50+</h3>
-                <p className="text-sm text-muted-foreground">Countries Reached</p>
-              </div>
-            </div>
-            <div className="flex flex-col items-center justify-center">
-              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 mb-2">
-                <Users className="h-8 w-8 text-primary" />
-              </div>
-              <div className="text-center">
-                <h3 className="text-3xl font-bold">15K+</h3>
-                <p className="text-sm text-muted-foreground">Donors</p>
-              </div>
-            </div>
+      <section className="relative h-[75vh] min-h-[500px] flex items-center justify-center text-center text-white px-4">
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-black/20 z-10" />
+        <Image 
+          src="https://images.unsplash.com/photo-1532629345422-7515f3d16bb6?q=80&w=2070&auto=format&fit=crop"
+          alt="Hands holding soil with a young plant, symbolizing growth and charity"
+          fill
+          className="object-cover"
+          priority
+        />
+        <div className="relative z-20 space-y-6 max-w-4xl">
+          <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight drop-shadow-lg">
+            Transparent Giving, Real Impact
+          </h1>
+          <p className="text-lg md:text-xl max-w-3xl mx-auto text-white/90 drop-shadow-md">
+            Leveraging blockchain for a new era of charitable donations where every contribution is traceable and every outcome is clear.
+          </p>
+          <div className="space-x-4 pt-4">
+            <Button size="lg" asChild>
+              <Link href="/causes">Explore Causes</Link>
+            </Button>
+            <Button size="lg" variant="secondary" asChild>
+              <Link href="/about">Learn More</Link>
+            </Button>
           </div>
         </div>
       </section>
 
-      {/* Featured Causes Section */}
-      <section className="py-12 md:py-16">
+      {/* Value Proposition Section */}
+      <section className="py-20 lg:py-28">
         <div className="container px-4 md:px-6">
-          <div className="flex flex-col items-center justify-between gap-4 md:flex-row">
-            <div>
-              <h2 className="text-3xl font-bold tracking-tighter flex items-center">
-                Featured Causes <span className="ml-2 text-primary">❤</span>
-              </h2>
-              <p className="text-muted-foreground max-w-[700px]">
-                Discover impactful projects supporting global communities
-              </p>
+            <div className="grid md:grid-cols-2 gap-12 lg:gap-20 items-center">
+                {/* Left side with text content */}
+                <div className="space-y-6">
+                    <div className="bg-primary text-primary-foreground inline-block px-4 py-1.5 text-sm font-semibold rounded-full">
+                        The Future of Charity
+                    </div>
+                    <h2 className="text-3xl md:text-4xl font-bold leading-tight">Why Give With Us?</h2>
+                    <p className="text-muted-foreground text-lg">
+                        We are rebuilding charity for the digital age, focusing on trust, efficiency, and direct impact.
+                    </p>
+                    <div className="space-y-8 pt-4">
+                        <InfoPoint icon={<ShieldCheck size={32} className="text-primary"/>} title="Unmatched Transparency" text="Every donation is a transaction on the blockchain, publicly verifiable and impossible to tamper with." />
+                        <InfoPoint icon={<Zap size={32} className="text-primary"/>} title="Direct & Efficient" text="Reduced overhead means more of your donation goes directly to the cause, not to administrative fees." />
+                        <InfoPoint icon={<TrendingUp size={32} className="text-primary"/>} title="Verifiable Impact" text="Track the flow of funds and see real-time updates on how your contribution is making a difference." />
+                    </div>
+                </div>
+                {/* Right side with the image */}
+                <div className="relative h-96 lg:h-[450px] rounded-2xl shadow-xl overflow-hidden group">
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent z-10"></div>
+                     {/* UPDATE: Image source has been changed to the one you provided. */}
+                    <Image 
+                        src="https://blog.caionline.org/wp-content/uploads/2018/05/Volunteerism-1080x675.jpg" 
+                        alt="A group of hands together, symbolizing community and volunteerism" 
+                        fill 
+                        className="object-cover transition-transform duration-500 group-hover:scale-105" 
+                    />
+                </div>
             </div>
-            <Button asChild variant="outline" className="hidden md:flex">
-              <Link href="/causes">View All Causes</Link>
-            </Button>
-          </div>
-          
-          <div className="mt-8 grid gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-            {causesData.filter(c => c.featured).slice(0, 4).map(cause => (
-               <CauseCard 
-                key={cause.id}
-                name={cause.name}
-                description={cause.description}
-                imageSrc={cause.imageSrc} 
-                category={cause.category}
-                fundedPercentage={cause.fundedPercentage}
-                featured={cause.featured}
-              />
-            ))}
-          </div>
-          
-          <div className="mt-6 flex justify-center md:hidden">
-            <Button asChild variant="outline">
-              <Link href="/causes">View All Causes</Link>
-            </Button>
-          </div>
+        </div>
+      </section>
+
+      {/* Live Impact Stats Section */}
+      <section className="py-20 lg:py-28 bg-slate-900 relative overflow-hidden">
+        <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_800px_at_100%_200px,#1e40af_10%,transparent_50%)] opacity-20"></div>
+        <div className="absolute bottom-0 right-0 w-full h-full bg-[radial-gradient(circle_800px_at_0%_-100px,#1e40af_10%,transparent_50%)] opacity-20"></div>
+        <div className="container relative z-10">
+            <div className="flex flex-col items-center space-y-4 text-center mb-12">
+                <h2 className="text-3xl font-bold tracking-tighter text-white">Our Live Impact</h2>
+                <p className="text-slate-300 max-w-[700px]">
+                    Powered by the blockchain, these numbers reflect our community's collective effort in real-time.
+                </p>
+            </div>
+            <ImpactStats />
         </div>
       </section>
       
-      {/* How It Works Section */}
-      <section className="py-12 md:py-16 bg-muted/50">
-        <div className="container px-4 md:px-6">
-          <div className="flex flex-col items-center text-center">
-            <h2 className="text-3xl font-bold tracking-tighter">How It Works</h2>
-            <p className="text-muted-foreground max-w-[600px]">
-              Making a difference is simple. In just three steps, you can contribute to causes you care about.
+      {/* Featured Causes - This uses the component we already built */}
+      <FeaturedCauses />
+
+      {/* Final CTA Section */}
+      <section className="py-20 lg:py-28 bg-muted/20">
+        <div className="container text-center">
+            <h2 className="text-3xl md:text-4xl font-bold">Ready to Make a Difference?</h2>
+            <p className="text-muted-foreground max-w-2xl mx-auto mt-4 text-lg">
+                Your contribution, no matter the size, can create a ripple of change. Join our community of givers today and be part of the movement.
             </p>
-          </div>
-          
-          <div className="mt-8 grid gap-8 md:grid-cols-3">
-            <div className="flex flex-col items-center text-center">
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary mb-4">
-                <span className="text-xl font-bold text-primary-foreground">1</span>
-              </div>
-              <h3 className="text-xl font-bold">Choose a Cause</h3>
-              <p className="mt-2 text-muted-foreground">
-                Browse through our vetted charitable organizations and find causes that resonate with your values.
-              </p>
-            </div>
-            
-            <div className="flex flex-col items-center text-center">
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary mb-4">
-                <span className="text-xl font-bold text-primary-foreground">2</span>
-              </div>
-              <h3 className="text-xl font-bold">Connect & Donate</h3>
-              <p className="mt-2 text-muted-foreground">
-                Connect your wallet and contribute any amount you're comfortable with. Every donation makes an impact.
-              </p>
-            </div>
-            
-            <div className="flex flex-col items-center text-center">
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary mb-4">
-                <span className="text-xl font-bold text-primary-foreground">3</span>
-              </div>
-              <h3 className="text-xl font-bold">Track Your Impact</h3>
-              <p className="mt-2 text-muted-foreground">
-                Follow the progress of the causes you've supported and see the real-world difference you're making.
-              </p>
-            </div>
-          </div>
+            <Button size="lg" className="mt-8" asChild>
+                <Link href="/causes">Donate to a Cause</Link>
+            </Button>
         </div>
       </section>
-      
+
       {/* Newsletter Section */}
       <Newsletter />
-    </div>
+    </main>
   );
 }
+
+
+// A small helper component for the info points, now with better styling
+const InfoPoint = ({ icon, title, text }: { icon: React.ReactNode, title: string, text: string }) => (
+    <div className="flex items-start gap-5">
+        <div className="flex-shrink-0 w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center">
+            {icon}
+        </div>
+        <div>
+            <h3 className="font-semibold text-xl mb-1">{title}</h3>
+            <p className="text-muted-foreground leading-relaxed">{text}</p>
+        </div>
+    </div>
+)

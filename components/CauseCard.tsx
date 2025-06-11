@@ -11,6 +11,7 @@ import { Heart } from 'lucide-react';
 import DonateDialog from './DonateDialog';
 
 interface CauseCardProps {
+  id: number; // The on-chain numeric ID of the cause
   name: string;
   description: string;
   imageSrc: string;
@@ -19,7 +20,12 @@ interface CauseCardProps {
   featured?: boolean;
 }
 
+/**
+ * A card component to display a summary of a single cause.
+ * It links to the detailed cause page and allows users to initiate a donation.
+ */
 export default function CauseCard({
+  id,
   name,
   description,
   imageSrc,
@@ -29,12 +35,9 @@ export default function CauseCard({
 }: CauseCardProps) {
   const [showDonateDialog, setShowDonateDialog] = useState(false);
   
-  // Generate a deterministic ID for the link from the name
-  const id = name.toLowerCase().replace(/\s+/g, '-');
-  
   return (
     <>
-      <Card className={`overflow-hidden transition-all hover:shadow-md ${featured ? 'border-primary/50 shadow-sm' : ''}`}>
+      <Card className={`overflow-hidden transition-all hover:shadow-lg ${featured ? 'border-primary/50 shadow-md' : ''}`}>
         <div className="relative">
           <div className="relative aspect-video overflow-hidden">
             <Image
@@ -42,6 +45,7 @@ export default function CauseCard({
               alt={name}
               fill
               className="object-cover transition-transform hover:scale-105"
+              onError={(e) => { e.currentTarget.src = 'https://placehold.co/400x225/EEE/31343C?text=Image+Not+Found'; }}
             />
           </div>
           <div className="absolute top-3 left-3 flex items-center space-x-2">
@@ -66,6 +70,7 @@ export default function CauseCard({
         
         <CardContent className="p-4">
           <div className="space-y-2">
+            {/* The Link now uses the numeric on-chain ID for a unique and stable URL */}
             <Link href={`/causes/${id}`} className="block">
               <h3 className="line-clamp-1 font-semibold text-lg hover:text-primary transition-colors">{name}</h3>
             </Link>
@@ -91,10 +96,12 @@ export default function CauseCard({
         </CardFooter>
       </Card>
 
+      {/* The DonateDialog now receives the numeric cause ID for the transaction */}
       <DonateDialog 
         open={showDonateDialog} 
         onOpenChange={setShowDonateDialog}
         causeName={name}
+        causeId={id} 
       />
     </>
   );
