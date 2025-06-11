@@ -1,49 +1,70 @@
 "use client";
 
-import { useState } from "react";
-import { PlusCircle } from "lucide-react";
+import { Lock, ShieldAlert } from 'lucide-react';
 
-// Dialog Component
-import { AddCauseContractDialog } from "@/components/dialogs/AddCauseContractDialog";
-// New Dashboard Component
+// Local Project Imports
+import { useIsOwner } from "@/hooks/useIsOwner"; // Import the new custom hook
 import { CausesOverview } from "@/components/dashboard/CausesOverview";
-
-// Shadcn UI Components
-import { Button } from "@/components/ui/button";
-import { TooltipProvider } from "@/components/ui/tooltip";
-
-// Get the contract address from environment variables
-const causeRegistryAddress = process.env.NEXT_PUBLIC_CAUSE_REGISTRY_ADDRESS;
+import { Skeleton } from "@/components/ui/skeleton";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 /**
- * =================================================================================
- * MAIN DASHBOARD PAGE COMPONENT
- * =================================================================================
+ * The main dashboard page, protected using the `useIsOwner` hook.
  */
 export default function DashboardPage() {
-  const [isContractCauseDialogOpen, setIsContractCauseDialogOpen] = useState(false);
+    // Use our new custom hook to get the ownership status.
+    // All the complex logic is now cleanly abstracted away.
+    const { isOwner, isLoading, isError } = useIsOwner();
 
-  return (
-    <TooltipProvider>
-      <div className="flex-1 space-y-4 p-4 pt-6 md:p-8">
-        <div className="flex items-center justify-between space-y-2">
-          <h1 className="text-3xl font-bold tracking-tight">Admin Dashboard</h1>
-          <div className="flex items-center space-x-2">
-            <Button onClick={() => setIsContractCauseDialogOpen(true)} disabled={!causeRegistryAddress}>
-              <PlusCircle className="mr-2 h-4 w-4" /> Add Cause to Contract
-            </Button>
-          </div>
+    // Show a loading skeleton while the ownership check is in progress.
+    if (isLoading) {
+        return <DashboardSkeleton />;
+    }
+
+    // Show a generic error message if the hook reports an error.
+    if (isError) {
+        return (
+            <div className="container py-10">
+                <Alert variant="destructive">
+                    <ShieldAlert className="h-4 w-4" />
+                    <AlertTitle>Contract Error</AlertTitle>
+                    <AlertDescription>
+                        Could not verify ownership. Please ensure the contract address is set and you are connected to the correct network.
+                    </AlertDescription>
+                </Alert>
+            </div>
+        );
+    }
+
+    // If the user is the owner, render the admin dashboard components.
+    if (isOwner) {
+        return (
+            <div className="container py-6">
+                <h1 className="text-3xl font-bold mb-4">Admin Dashboard</h1>
+                <CausesOverview />
+            </div>
+        );
+    }
+
+    // If the user is not the owner, render the "Access Denied" message.
+    return (
+        <div className="container py-20 flex flex-col items-center justify-center text-center">
+            <Lock className="h-16 w-16 text-muted-foreground mb-4" />
+            <h1 className="text-3xl font-bold">Access Denied</h1>
+            <p className="text-muted-foreground mt-2 max-w-md">
+                This dashboard is restricted to the contract owner. Please connect with the owner's wallet to gain access.
+            </p>
         </div>
-        
-        {/* Render the self-contained overview component */}
-        <CausesOverview />
+    );
+}
 
-        {/* Dialog for adding a cause to the contract */}
-        <AddCauseContractDialog
-          isOpen={isContractCauseDialogOpen}
-          setIsOpen={setIsContractCauseDialogOpen}
-        />
-      </div>
-    </TooltipProvider>
-  );
+// A simple skeleton component for the loading state.
+function DashboardSkeleton() {
+    return (
+        <div className="container py-6 space-y-4">
+            <Skeleton className="h-10 w-1/4" />
+            <Skeleton className="h-24 w-full" />
+            <Skeleton className="h-64 w-full" />
+        </div>
+    );
 }

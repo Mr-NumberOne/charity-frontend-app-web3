@@ -1,9 +1,9 @@
-"use client"
+"use client";
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { useAccount } from 'wagmi'
+import { useAccount } from 'wagmi';
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -24,11 +24,14 @@ import {
 import { ThemeToggle } from './ThemeToggle';
 import { cn } from '@/lib/utils';
 import { Menu, Github } from 'lucide-react';
-import { CharityOneIcon } from './CharityOneIcon'; // Import the new icon
+import { CharityOneIcon } from './CharityOneIcon';
+import { useIsOwner } from "@/hooks/useIsOwner"; // Import the hook
 
 export default function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
-  const { address, isConnected } = useAccount()
+  const { isConnected } = useAccount();
+  const { isOwner } = useIsOwner(); // Use the hook to check for ownership
+
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 10);
@@ -37,12 +40,6 @@ export default function Header() {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
-
-  // const handleConnectWallet = () => {
-  //   // TODO: Implement your actual wallet connection logic here.
-  //   console.log("Connect Wallet button clicked. Implement connection logic.");
-  //   alert("Connect Wallet functionality needs to be implemented.");
-  // };
 
   return (
     <header className={cn(
@@ -74,58 +71,10 @@ export default function Header() {
                 <NavigationMenuTrigger>About</NavigationMenuTrigger>
                 <NavigationMenuContent>
                   <ul className="grid gap-3 p-6 w-[400px] grid-cols-2">
-                    <li>
-                      <NavigationMenuLink asChild>
-                        <Link
-                          href="/about"
-                          className="flex flex-col gap-1 p-3 hover:bg-muted rounded-md transition-colors"
-                        >
-                          <div className="font-medium">Our Story</div>
-                          <p className="text-sm text-muted-foreground">
-                            Learn about our mission and vision
-                          </p>
-                        </Link>
-                      </NavigationMenuLink>
-                    </li>
-                    <li>
-                      <NavigationMenuLink asChild>
-                        <Link
-                          href="/about#team"
-                          className="flex flex-col gap-1 p-3 hover:bg-muted rounded-md transition-colors"
-                        >
-                          <div className="font-medium">Our Team</div>
-                          <p className="text-sm text-muted-foreground">
-                            Meet the people behind the platform
-                          </p>
-                        </Link>
-                      </NavigationMenuLink>
-                    </li>
-                    <li>
-                      <NavigationMenuLink asChild>
-                        <Link
-                          href="/impact"
-                          className="flex flex-col gap-1 p-3 hover:bg-muted rounded-md transition-colors"
-                        >
-                          <div className="font-medium">Impact</div>
-                          <p className="text-sm text-muted-foreground">
-                            See the difference we're making together
-                          </p>
-                        </Link>
-                      </NavigationMenuLink>
-                    </li>
-                    <li>
-                      <NavigationMenuLink asChild>
-                        <Link
-                          href="/faq"
-                          className="flex flex-col gap-1 p-3 hover:bg-muted rounded-md transition-colors"
-                        >
-                          <div className="font-medium">FAQ</div>
-                          <p className="text-sm text-muted-foreground">
-                            Answers to commonly asked questions
-                          </p>
-                        </Link>
-                      </NavigationMenuLink>
-                    </li>
+                     <ListItem href="/about" title="Our Story">Learn about our mission and vision</ListItem>
+                     <ListItem href="/about#team" title="Our Team">Meet the people behind the platform</ListItem>
+                     <ListItem href="/impact" title="Impact">See the difference we're making together</ListItem>
+                     <ListItem href="/faq" title="FAQ">Answers to commonly asked questions</ListItem>
                   </ul>
                 </NavigationMenuContent>
               </NavigationMenuItem>
@@ -142,19 +91,17 @@ export default function Header() {
 
           <div className="flex items-center gap-2">
             <ThemeToggle />
-            <Button variant="outline" asChild>
-              <Link href="/dashboard">Dashboard</Link>
-            </Button>
-            {/* <Button onClick={handleConnectWallet}>
-              Connect Wallet
-            </Button> */}
-            {isConnected ? (
+            {/* Conditionally render the Dashboard button for desktop view */}
+            {isOwner && (
+                <Button variant="outline" asChild>
+                    <Link href="/dashboard">Dashboard</Link>
+                </Button>
+            )}
+            {/* These are the Web3Modal buttons from your provided code */}
+            {isConnected && (
               <Button>
                 <w3m-network-button />
               </Button>
-            ) : (
-              <>
-              </>
             )}
             <Button>
               <w3m-button />
@@ -180,48 +127,18 @@ export default function Header() {
                 </SheetTitle>
               </SheetHeader>
               <div className="flex flex-col space-y-4">
-                <SheetClose asChild>
-                  <Link href="/" className="py-2 hover:text-primary transition-colors">
-                    Home
-                  </Link>
-                </SheetClose>
-                <SheetClose asChild>
-                  <Link href="/causes" className="py-2 hover:text-primary transition-colors">
-                    Causes
-                  </Link>
-                </SheetClose>
-                <SheetClose asChild>
-                  <Link href="/about" className="py-2 hover:text-primary transition-colors">
-                    About
-                  </Link>
-                </SheetClose>
-                <SheetClose asChild>
-                  <Link href="https://github.com/Mr-NumberOne/charity-frontend-app-web3" target="_blank" className="py-2 hover:text-primary transition-colors flex items-center">
-                    <Github className="h-4 w-4 mr-2" />
-                    GitHub
-                  </Link>
-                </SheetClose>
-                <SheetClose asChild>
-                  <Link href="/dashboard" className="py-2 hover:text-primary transition-colors">
-                    Dashboard
-                  </Link>
-                </SheetClose>
-                <SheetClose asChild>
-                  {/* <Button className="w-full mt-2" onClick={handleConnectWallet}>
-                    Connect Wallet
-                  </Button> */}
-                  {isConnected ? (
-                    <Button>
-                      <w3m-network-button />
-                    </Button>
-                  ) : (
-                    <>
-                    </>
-                  )}
-                  <Button>
-                    <w3m-button />
-                  </Button>
-                </SheetClose>
+                <SheetClose asChild><Link href="/" className="py-2 hover:text-primary transition-colors">Home</Link></SheetClose>
+                <SheetClose asChild><Link href="/causes" className="py-2 hover:text-primary transition-colors">Causes</Link></SheetClose>
+                <SheetClose asChild><Link href="/about" className="py-2 hover:text-primary transition-colors">About</Link></SheetClose>
+                <SheetClose asChild><Link href="https://github.com/Mr-NumberOne/charity-frontend-app-web3" target="_blank" className="py-2 hover:text-primary transition-colors flex items-center"><Github className="h-4 w-4 mr-2" />GitHub</Link></SheetClose>
+                {/* Conditionally render the Dashboard link for mobile view */}
+                {isOwner && (
+                    <SheetClose asChild><Link href="/dashboard" className="py-2 hover:text-primary transition-colors">Dashboard</Link></SheetClose>
+                )}
+                <div className="flex flex-col space-y-2 pt-4">
+                    {isConnected && <Button><w3m-network-button /></Button>}
+                    <Button><w3m-button /></Button>
+                </div>
               </div>
             </SheetContent>
           </Sheet>
@@ -230,3 +147,21 @@ export default function Header() {
     </header>
   );
 }
+
+// Helper component for the navigation menu content
+const ListItem = ({ href, title, children }: { href: string, title: string, children: React.ReactNode }) => {
+    return (
+        <li>
+            <NavigationMenuLink asChild>
+                <Link
+                    href={href}
+                    className="flex flex-col gap-1 p-3 hover:bg-muted rounded-md transition-colors"
+                >
+                    <div className="font-medium">{title}</div>
+                    <p className="text-sm text-muted-foreground">{children}</p>
+                </Link>
+            </NavigationMenuLink>
+        </li>
+    );
+};
+
