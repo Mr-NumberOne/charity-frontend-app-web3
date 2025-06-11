@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
+import { useWriteContract, useWaitForTransactionReceipt, useAccount } from 'wagmi';
 import { parseEther, type Address } from 'viem';
 import { toast } from '@/hooks/use-toast';
 
@@ -48,6 +48,8 @@ export default function DonateDialog({ causeId, causeName, open, onOpenChange, t
   const currentOpen = isControlled ? open : internalOpen;
   const setCurrentOpen = isControlled ? onOpenChange : setInternalOpen;
 
+  const { isConnected } = useAccount();
+
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: { amount: '' },
@@ -62,8 +64,8 @@ export default function DonateDialog({ causeId, causeName, open, onOpenChange, t
   // Function to handle form submission
   const onSubmit = (data: z.infer<typeof FormSchema>) => {
     if (!causeRegistryAddress) {
-        toast({ title: "Error", description: "Contract address is not configured.", variant: "destructive" });
-        return;
+      toast({ title: "Error", description: "Contract address is not configured.", variant: "destructive" });
+      return;
     }
     // Call the `donateToCause` function on the contract
     writeContract({
@@ -73,14 +75,14 @@ export default function DonateDialog({ causeId, causeName, open, onOpenChange, t
       args: [BigInt(causeId)], // Pass the numeric cause ID
       value: parseEther(data.amount), // The amount to send with the transaction
     }, {
-        onSuccess: () => {
-          toast({ title: "Transaction Sent!", description: "Waiting for confirmation from your wallet..." });
-          form.reset();
-        },
-        onError: (err) => {
-          // Provide user-friendly error messages
-          toast({ title: "Transaction Error", description: (err as any)?.shortMessage || err.message, variant: "destructive" });
-        }
+      onSuccess: () => {
+        toast({ title: "Transaction Sent!", description: "Waiting for confirmation from your wallet..." });
+        form.reset();
+      },
+      onError: (err) => {
+        // Provide user-friendly error messages
+        toast({ title: "Transaction Error", description: (err as any)?.shortMessage || err.message, variant: "destructive" });
+      }
     });
   };
 
@@ -109,37 +111,51 @@ export default function DonateDialog({ causeId, causeName, open, onOpenChange, t
           </DialogTrigger>
         )}
         <DialogContent className="sm:max-w-[425px]">
-          <DialogHeader>
-            <DialogTitle>Donate to {causeName}</DialogTitle>
-            <DialogDescription>
-              Your contribution will directly support this cause. Enter the amount in ETH you'd like to donate.
-            </DialogDescription>
-          </DialogHeader>
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-              <FormField
-                control={form.control}
-                name="amount"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Amount (ETH)</FormLabel>
-                    <FormControl>
-                      <Input placeholder="0.1" {...field} type="number" step="0.01" />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <Button type="submit" className="w-full" disabled={isPending || isConfirming}>
-                {(isPending || isConfirming) && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                {isConfirming ? 'Confirming Transaction...' : isPending ? 'Check Your Wallet' : 'Submit Donation'}
-              </Button>
-              {error && <p className="text-xs text-destructive text-center">{(error as any).shortMessage}</p>}
-            </form>
-          </Form>
+          {isConnected ?
+            <div>
+              <DialogHeader>
+                <DialogTitle>Donate to {causeName}</DialogTitle>
+                <DialogDescription>
+                  Your contribution will directly support this cause. Enter the amount in ETH you'd like to donate.
+                </DialogDescription>
+              </DialogHeader>
+              <Form {...form}>
+                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                  <FormField
+                    control={form.control}
+                    name="amount"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Amount (ETH)</FormLabel>
+                        <FormControl>
+                          <Input placeholder="0.1" {...field} type="number" step="0.01" />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <Button type="submit" className="w-full" disabled={isPending || isConfirming}>
+                    {(isPending || isConfirming) && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                    {isConfirming ? 'Confirming Transaction...' : isPending ? 'Check Your Wallet' : 'Submit Donation'}
+                  </Button>
+                  {error && <p className="text-xs text-destructive text-center">{(error as any).shortMessage}</p>}
+                </form>
+              </Form>
+            </div> :
+            <div>
+              <DialogHeader>
+                <DialogTitle>Before you can donate</DialogTitle>
+                <DialogDescription>
+                  You have to connect you wallet
+                </DialogDescription>
+                <Button className='m-auto'>
+                  <w3m-button />
+                </Button>
+              </DialogHeader>
+            </div>}
         </DialogContent>
       </Dialog>
-      
+
       {/* This dialog is shown after a successful transaction confirmation */}
       <SuccessDialog open={showSuccessDialog} onOpenChange={setShowSuccessDialog} txHash={hash} />
     </>
